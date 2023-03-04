@@ -1,3 +1,4 @@
+using ClaimExample.Data;
 using ClaimExample.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,23 +23,20 @@ builder.Services.ConfigureApplicationCookie(config =>
 {
     config.Cookie.Name = "NgocTho";
     config.LoginPath = "/Home/Login";
+    config.AccessDeniedPath = "/Home/UserAccessDenied";
 });
-//builder.Services.AddAuthentication("CookieAuth")
-//	.AddCookie("CookieAuth", config =>
-//	{
-//		config.Cookie.Name = "NgocTho";
-//		config.LoginPath = "/Home/Login";
-//        config.LogoutPath = "/Home/Logout";
-//    });
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+var services = builder.Services;
+services.AddDbContext<ApplicationDbContext>(options =>
 options.UseSqlServer(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-
+//add custom data
+await SeedData(app);
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -57,3 +55,25 @@ app.MapControllerRoute(
 	pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+
+static async Task SeedData(WebApplication app)
+{
+    using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+    {
+        var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+        var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+        var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+        if (userManager == null || roleManager == null) return;
+        var hasRole = roleManager.Roles.Any();
+        if (!hasRole)
+        {
+            await ContextSeed.SeedRolesAsync(userManager, roleManager);
+        }
+        var hasUser = userManager.Users.Any();
+        if (!hasUser)
+        {
+            await ContextSeed.SeedSuperAdminAsync(userManager, roleManager);
+        }
+    } 
+}
