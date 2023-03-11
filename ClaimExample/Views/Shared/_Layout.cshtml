@@ -28,6 +28,19 @@
                     </ul>
                 </div>
             </div>
+            @{
+                if (User.Identity.IsAuthenticated)
+                {
+                    <a href="~/Account/Manage">@User.Identity.Name</a>
+                    <form class="form-inline" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")" method="post">
+                            <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a href="~/Home/Login">Login</a>
+                }
+            }
         </nav>
     </header>
     <div class="container">
