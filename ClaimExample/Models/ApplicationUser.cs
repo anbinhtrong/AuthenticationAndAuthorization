@@ -8,7 +8,6 @@ namespace ClaimExample.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        [Display(Name = "Profile Picture")]
         public byte[] ProfilePicture { get; set; }
     }
 }

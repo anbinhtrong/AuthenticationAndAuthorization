@@ -6,7 +6,7 @@ namespace ClaimExample.Models
     public class UserProfileViewModel
     {
         [Display(Name = "First Name")]
-        [Required]
+        [Required(ErrorMessage = "Your First Name is required")]
         public string FirstName { get; set; }
 
         [Display(Name = "Last Name")]
